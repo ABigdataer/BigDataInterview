@@ -1,0 +1,76 @@
+
+窗口函数：
+
+1.什么时候用开窗函数？
+开窗函数常结合聚合函数使用，一般来讲聚合后的行数要少于聚合前的行数，但是有时我们既想显示聚集前的数据,
+又要显示聚集后的数据,这时我们便引入了窗口函数.
+
+例如：
++-------+-------------+-------+---------------+--+
+| name  |  orderdate  | cost  | sum_window_0  |
++-------+-------------+-------+---------------+--+
+| jack  | 2017-01-01  | 10    | 205           |
+| jack  | 2017-01-08  | 55    | 205           |
+| tony  | 2017-01-07  | 50    | 205           |
+| jack  | 2017-01-05  | 46    | 205           |
+| tony  | 2017-01-04  | 29    | 205           |
+| tony  | 2017-01-02  | 15    | 205           |
+| jack  | 2017-02-03  | 23    | 23            |
+| mart  | 2017-04-13  | 94    | 341           |
+| jack  | 2017-04-06  | 42    | 341           |
+| mart  | 2017-04-11  | 75    | 341           |
+| mart  | 2017-04-09  | 68    | 341           |
+| mart  | 2017-04-08  | 62    | 341           |
+| neil  | 2017-05-10  | 12    | 12            |
+| neil  | 2017-06-12  | 80    | 80            |
++-------+-------------+-------+---------------+--
+
+2.窗口函数的语法：
+
+UDAF() over (PARTITION By col1，col2 order by col3 窗口子句（rows between .. and ..）) AS 列别名
+
+注意：PARTITION By后可跟多个字段，order By只跟一个字段。
+
+3.over()的作用
+over()决定了聚合函数的聚合范围，默认对整个窗口中的数据进行聚合，聚合函数对每一条数据调用一次。
+
+例如：
+select name, orderdate, cost, sum(cost) over()
+from business; 
+
+4.partition by子句：
+使用Partiton by子句对数据进行分区，可以用paritition by对区内的进行聚合。
+
+例如：
+select name, orderdate, cost, sum(cost) over(partition by name)
+from business;
+
+5.order by子句：
+
+作用：
+（1）对分区中的数据进行排序；
+（2）确定聚合哪些行（默认从起点到当前行的聚合）
+
+例如：
+select name, orderdate, cost, sum(cost) over(partition by name order by orderdate)
+from business;
+
+6.窗口子句
+CURRENT ROW：当前行
+n PRECEDING：往前n行数据
+n FOLLOWING：往后n行数据
+UNBOUNDED：起点，UNBOUNDED PRECEDING 表示从前面的起点， UNBOUNDED FOLLOWING表示到后面的终点
+
+通过使用partition by子句将数据进行了分区。如果想要对窗口进行更细的动态划分，
+就要引入窗口子句。
+
+例如：
+select name, orderdate,cost, sum(cost) 
+over(partition by name order by orderdate rows between UNBOUNDED PRECEDING and CURRENT ROW)
+from business;
+
+7.几点注意：
+
+（1）order by必须跟在partition by后;
+（2）Rows必须跟在Order by子；
+（3）（partition by .. order by）可替换为（distribute by .. sort by ..）
