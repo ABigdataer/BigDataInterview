@@ -1,0 +1,27 @@
+1、搜索引擎
+  Ⅰ、solr
+  Ⅱ、lucene
+2、数据分析平台数据来源
+  Ⅰ、服务器日志（Nginx日志、apche日志、服务器系统日志...）
+  Ⅱ、业务日志(Log4j的日志、debug日志信息...)
+  ⅲ、用户行为数据
+  Ⅳ、第三方数据
+  ⅴ、网络爬虫数据
+  ......
+3、HBase协处理器的使用步骤
+  Ⅰ、继承BaseRegionServer实现内部处理方法
+  Ⅱ、打包成jar文件
+  ⅲ、重新创建表，在表创建时会自动挂载该协处理器（表在挂载协处理器的时候，回去HBase的根目录下的lib文件夹下面找到jar包）
+4、Hadoop的Runner继承Configured并实现Tool接口
+      extends configure implements Tool
+      需要实现其内部方法setConf(Configration conf){...}    任务提交到yarn,在任务执行前将会调用setConf方法，默认读取hadoop集群配置信息
+                      getConf(){...}  当启动start-dfs.sh，会生成一个conf对象，且会将hadoop的各种配置文件加载到conf对象，任务执行时会调用该方法
+                      run(args){...}  
+5、HBase整合Hive
+   Ⅰ、可能会存在兼容性问题，在创建关联表时报错，需要重新编译hive的lib下的Hive-hbase-handler-***.jar
+   Ⅱ、整合后创建关联表，HBase中，不能已存在表，在网hive中插入数据后，HBase也会同步相应数据
+   ⅲ、创建外部关联已存在HBase表，可以用HQL语句直接对HBase中数据进行处理分析
+   Ⅳ、对HBase与Hive关联的内部表进行disable和drop操作后，会出现可以在hive的指令窗口中查询到已删除的表，但是查找不到数据，也无法删除内部表，只用重新打开
+   一个指令窗口.(实际删除操作应该先删除Hive的表再删除HBase对应的表)
+6、  
+      
