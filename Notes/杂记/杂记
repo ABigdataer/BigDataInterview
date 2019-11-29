@@ -23,5 +23,7 @@
    ⅲ、创建外部关联已存在HBase表，可以用HQL语句直接对HBase中数据进行处理分析
    Ⅳ、对HBase与Hive关联的内部表进行disable和drop操作后，会出现可以在hive的指令窗口中查询到已删除的表，但是查找不到数据，也无法删除内部表，只用重新打开
    一个指令窗口.(实际删除操作应该先删除Hive的表再删除HBase对应的表)
-6、  
+6、Sqoop整合HBase可能存在兼容问题：
+   例如：Sqoop1.4.6只支持HBase1.0.1之前版本的表自动创建功能(--hbase-create-table)
+   实际开发环境中基本只使用Sqoop将关系型数据库内数据导入HBase
       
