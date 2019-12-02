@@ -5,31 +5,31 @@
 
 &emsp;Ⅱ、Json的规范：
 
-&emsp;(1)Json是一个字符串；
+&emsp;&emsp;&emsp;(1)Json是一个字符串；
 
-&emsp;(2)Json中的属性名必须用双引号括起来;
+&emsp;&emsp;&emsp;(2)Json中的属性名必须用双引号括起来;
 
 &emsp;Ⅲ、Json的两种格式：
 
-&emsp;(1)Json对象：{}  {"name":"秃子"，"age":23}
+&emsp;&emsp;&emsp;(1)Json对象：{}  {"name":"秃子"，"age":23}
 
-&emsp;(2)Json数组：[]  [123,true,"test"]
+&emsp;&emsp;&emsp;(2)Json数组：[]  [123,true,"test"]
 
 &emsp;Ⅳ、Json中可以保存的数据类型：
 
-&emsp;(1)Number  &emsp;(2)String   &emsp;(3)Boolean
+&emsp;&emsp;&emsp;(1)Number  &emsp;(2)String   &emsp;(3)Boolean
 
-&emsp;(4)null   &emsp;(5)Object   &emsp;(6)Array
+&emsp;&emsp;&emsp;(4)null   &emsp;(5)Object   &emsp;(6)Array
 
 &emsp;Ⅴ、在Js中有一个对象--JSON,通过该对象可以对JSON进行解析：
 
-&emsp;(1) Json ---> Object    var obj = JSON.Parse(json);
+&emsp;&emsp;&emsp;(1) Json ---> Object    var obj = JSON.Parse(json);
 
-&emsp;(2) Object ---> Json    var json = Json.Stringify(obj);
+&emsp;&emsp;&emsp;(2) Object ---> Json    var json = Json.Stringify(obj);
 
 &emsp;Ⅵ、Java在默认情况下不支持Json解析，需要引入第三方jar包；
 
-&emsp;&emsp;&emsp;  JSON-lib    jackson   gson
+&emsp;&emsp;&emsp;  JSON-lib  &emsp;   jackson  &emsp;  gson
 
 &emsp;&emsp;&emsp; Gson gson = new Gson();
 
