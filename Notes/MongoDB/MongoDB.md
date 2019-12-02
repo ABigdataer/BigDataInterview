@@ -50,9 +50,9 @@
 
 &emsp;&emsp;&emsp;(1)数据库：数据库是一个仓库，在仓库中可以存放集合；
 
-&emsp;&emsp;&emsp;（2）集合：集合类似于数组，在集合中可以存放文档；
+&emsp;&emsp;&emsp;(2)集合：集合类似于数组，在集合中可以存放文档；
 
-&emsp;&emsp;&emsp;（3）文档：文档数据库中最小的单位，存储和操作的内容都是文档，在MongoDB中每一条数据都一个文档；
+&emsp;&emsp;&emsp;(3)文档：文档数据库中最小的单位，存储和操作的内容都是文档，在MongoDB中每一条数据都一个文档；
 
 &emsp;Ⅴ、MongoDB的偶数版本是稳定版，奇数版本为开发版，且在3.2版本之后不再支持32位操作系统；
 
@@ -82,8 +82,24 @@
  
 &emsp;Ⅷ、插入的文档对象会默认添加 `_id` 属性，这个属性对应一个唯一id,是文档的唯一标识（可以手动指定，但需要确保唯一性，不推荐使用）；
 
+&emsp;Ⅸ、修改器
 
+&emsp;&emsp;&emsp;使用update会将整个文档进行替换，但是大部分情况下无需这么做，如果只对文档中一部分进行更新，则可以使用更新修改器：
 
+&emsp;&emsp;&emsp;(1) --$set  用来指定一个字段的值，如果字段不存在则创建  db.collection.update(查询对象，{$set:更新对象})；
 
+&emsp;&emsp;&emsp;(2) --$unset  用来删除文档中一个不需要的字段
 
- 
+&emsp;&emsp;&emsp;(3) --$inc  用来增加已有键的值，该键不存在则创建，只能用于Number类型的值；
+
+&emsp;Ⅹ、查询条件
+
+&emsp;&emsp;&emsp; $and &emsp; $lt &emsp; &emsp; $lte &emsp; $gt &emsp; $ne &emsp; $or &emsp; $in &emsp; $nin &emsp; $not &emsp; $exists;
+
+&emsp;Ⅺ、MongoDB的文档的属性值也可以是文档，称之为内嵌文档，要匹配内嵌文档的属性，需要通过 `.` 的方式进行查询，且属性名必须加引号；
+
+&emsp;&emsp;&emsp; db.collection.find({"c.name":"tom"});
+
+&emsp;Ⅻ、limit(n) 查询前n条数据  &emsp; skip(n) 跳过前n条数据
+
+&emsp;在MongoDB中通过limit和skip完成分页   limit(每页条数).skip(每页条数*(页码-1))；
