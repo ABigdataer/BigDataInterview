@@ -102,4 +102,4 @@
 
 &emsp;Ⅻ、limit(n) 查询前n条数据  &emsp; skip(n) 跳过前n条数据
 
-&emsp;在MongoDB中通过limit和skip完成分页   limit(每页条数).skip(每页条数*(页码-1))；
+&emsp;&emsp;&emsp;在MongoDB中通过limit和skip完成分页   limit(每页条数).skip(每页条数*(页码-1))；
