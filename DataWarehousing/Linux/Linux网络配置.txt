@@ -1,0 +1,10 @@
+1、克隆之后的操作系统需要重新分配物理地址
+    A、删除 /etc/sysconfig/network-scripts/ifcfg-eth0 文件中的物理地址
+	   删除两行： UUID和物理地址
+	B、删除文件 /etc/udev/rules.d/70-persistent-net.rules
+	       rm -rf /etc/udev/rules.d/70-persistent-net.rules
+2、修改主机名
+    vi /etc/sysconfig/network
+3、重新启动Linux : init 6
+4、修改hosts
+    vi /etc/hosts 增加 IP地址 主机名
