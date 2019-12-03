@@ -1,25 +1,37 @@
 1、order by
+
     对查询结果做一次全局排序，即所有Mapper产生的结果都会交给一个reducer处理，无论数据量大小，job任务只会启动一个reducer,所以如果数据量巨大，会耗费大
 量时间计算。（在严格模式下，oeder by 需要指定limit数据条数，从而避免因为数据量过大造成集群崩坏。）
+
 2、sort by
+
     对每一块Partion进行局部排序，即每一个reducer处理的数据都是有序的，但不能保证全局有序。
+    
 3、distribute by
+
     一般和sort by 组合使用，即将某一块数据给一个reducer处理，然后在指定的reducer中进行sort by排序（distribute by必须写在sort by前面）。
+    
 4、cluster by
+
     相当于sort by + distribute by，不同点在于cluster by 默认为降序排列且不能更改。
+    
 5、列转行
+
             User表                       t1
         name    sex  age             name    age          message   names
         张三     1   22              张三   1，22           1,22    张三|王五 
         李四     2   24     -->      李四   2，24    -->    2，24     李四
         王五     1   22              王五   1，22
+        
    HQL:
         select t1.message,concat_ws("|",collect_set(t1.name)) names         【注】 collect_set去重  collect——list不去重
         from(
             select name,concat(sex,",",age) message from User
             ) t1
          group by t1.message;
+         
 6、行转列 
+
             Movie_Info表
          movie          category             movie   category
         《战狼2》        战争，动作   --->   《战狼2》    战争 
@@ -29,5 +41,6 @@
     HQL:
         select movie,category_name from Movie_Info 
         lateral view explode(split(category,",")) tmp as category_name;
+        
 7、fields terminated by 设置字段与字段之间的分隔符
    collection items terminated by 设置字段中各个子元素的分隔符
