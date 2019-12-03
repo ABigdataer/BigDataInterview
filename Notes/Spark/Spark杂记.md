@@ -20,9 +20,9 @@
 
 #### 2、Shared Variables(共享变量)
 
-&emsp;&emsp;Ⅰ、`Broadcast Variables`(广播变量)  var xxx = sc.broadcast(y);
+&emsp;&emsp;Ⅰ、`Broadcast Variables`(广播变量) &emsp;&emsp; var xxx = sc.broadcast(y);
 
-&emsp;&emsp;Ⅱ、`Accumulators`(累加器) var xxx = sc.longAccumulator(0);
+&emsp;&emsp;Ⅱ、`Accumulators`(累加器) &emsp;&emsp; var xxx = sc.longAccumulator(0);
 
 #### 3、数据倾斜问题
 
