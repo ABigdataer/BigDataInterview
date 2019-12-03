@@ -23,7 +23,13 @@
 
 &emsp;&emsp;&emsp;4、索引（Index）：索引包含一堆有相似结构的文档数据,对应于数据库中的数据库；
 
-&emsp;&emsp;&emsp;5、类型（Type）：对应于数据库中的表；
+&emsp;&emsp;&emsp;5、类型（Type）：对应于数据库中的表；每个索引可以有一个或多个Type,Type是Index中的一个逻辑数据分类，每个个Type下的Document具有相同的字段(field)，比如一个博客系统，有一个索引，可以定义用户数据Type,博客数据Type,评论数据Type,每个Type下包含多个document。
 
-&emsp;&emsp;&emsp;每个索引可以有一个或多个Type,Type是Index中的一个逻辑数据分类，一个Type下的Document具有相同的字段（field），比如一个博客系统，有一个索引，可以定义用户数据Type,博客数据Type,评论数据Type,每个Type下包含多个document。
+&emsp;&emsp;&emsp;6、文档（Document）:对应于数据库中的行，最小数据单元，通常用Json数据结构表示；
+
+&emsp;&emsp;&emsp;7、字段（Feild）：最小数据单位，一个Document里面有多个Feild，每个Feild就是一个数据字段；
+
+&emsp;&emsp;&emsp;8、映射（Mapping）：数据如何存放到索引对象上的映射配置，包括数据类型、是否存储、是否分词等；
+
+
                                                                         
