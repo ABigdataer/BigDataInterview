@@ -7,6 +7,9 @@
     一般通过Logstash收集服务器上的日志文件，并保存到ElastaticSearch，由ElastaticSearch存储日志、建立索引和搜索数据，然后最后由Kibana提供友好的web界面，从Es中读取数据并进行可视化展示。
 
 #### 3、Kibana &emsp; 可视化平台，搜索展示存储在ElasticSearch中索引数据
+
+    便捷的使用图表、表格等图形化工具展示和分析数据。
+
 #### 4、ELK &emsp; 批量分析、数据集关联、生成图表、预警...
 #### 5、集群架构 &emsp; ELK --> EFK
 
