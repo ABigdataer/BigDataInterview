@@ -1,0 +1,35 @@
+## Zookeeper(分布式协调服务，为分布式应用提供协调服务--文件系统 + 通知机制)
+
+&emsp;&emsp;Zookeeper是一个基于观察者模式设计的分布式服务管理框架，负责存储和管理数据，然后接受观察者的注册，一旦数据节点发生变化，Zookeeper将负责通知已在Zookeeper
+上注册的那些观察者作出反应，从而实现集群中类似Master/Slaves的管理模式。
+
+#### Zookeeper的特性：
+
+&emsp;&emsp;1、Zookeeper提供的服务涵盖：主从协调、服务器节点动态上下线、统一集群管理、软负载均衡、统一命名服务、统一配置管理、分布式共享锁...
+
+&emsp;&emsp;2、集群的角色： Leader 和 Follower （半数存活机制）；
+
+&emsp;&emsp;3、全局数据一致：每个Server保存一份相同的数据副本；
+
+&emsp;&emsp;4、Leader负责投票的发起和决议，更新系统状态；
+
+&emsp;&emsp;5、Follower接收客户端请求并向客户端返回结果，在选举Leader中进行投票；
+
+&emsp;&emsp;6、来自同一个客户端的更新请求按照请求顺序执行；
+
+&emsp;&emsp;7、数据更新具有原子性；
+
+&emsp;&emsp;8、一定时间范围内，客户端可以读取到最新数据；
+
+&emsp;&emsp;9、分布式读写，由Leader负责更新请求转发；
+
+&emsp;&emsp;10、Zookeeper的数据存储具有层次化的目录结构；
+
+&emsp;&emsp;11、`Zookeeper的选举机制`
+
+&emsp;&emsp;12、2888：数据端口 &emsp; 3888 ：心跳端口(用于Leader的选举)
+
+&emsp;&emsp;13、`Zookeeper的节点类型:`
+
+           1、短暂(有序、无序)
+           2、持久(有序、无序)
