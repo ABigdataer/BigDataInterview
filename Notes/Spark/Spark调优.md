@@ -58,5 +58,63 @@
            sparkConf.set("spark.default.parallelism" , "500");
            
            这种并行度设置，只会在没有使用SparkSQL的那些Stage生效，如果想调节SparkSQL的并行度，则可以通过 `spark.sql.shuffle.partions`调节。
+           
+     Ⅲ、RDD重构以及RDD持久化
+         
+       (1)默认情况下，多次对一个RDD算子执行算子去获取不同的RDD,都会对这个RDD以及之前的父RDD全部重新计算一次；
+       (2)尽量复用RDD,功能差不多的RDD，可以抽取为一个公共的RDD;
+       (3)公共RDD一定要持久化，将RDD的数据缓存到内存/磁盘；
+       (4)将持久化数据进行序列化，避免OOM;
+       (5)考虑数据的高可靠性，如果内存充足，可以使用双副本机制进行持久化.
+       
+     Ⅳ、广播大变量
+     
+       如果task使用大变量(如存储大量数据的map集合)，将会导致性能受损，可以尝试将大变量广播出去；
+       
+       (1)默认的task执行算子过程中，每个task都会获取一份外部变量的副本，可能会增大网络传输开销(副本发送)、增大磁盘IO开销、序列化导致内存值不足
+       、频繁GC导致Spark作业暂停运行(task创建对象，堆内存放不下)；
+       (2)BlockManager   负责管理某个Executor对应的内存和磁盘上的数据，BlockManager也许会从Driver上获取变量副本，也可能从距离较近的executor
+       的BlockManager获取；
+       (3)广播变量在Driver上有一份初始副本，task在运行时如果需要使用变量副本，会首先在本地executor对应的BlockManager中获取，若本地没有，则从
+       Driver或者其它executor拉取并保存到本地；
+       (4)使用广播变量后，不会每一个task拥有一份变量副本，而是每一个executor一份副本；
+       (5)广播变量默认使用的最大内存可以设置为 ExecutorMemeory*60%*90%*80%.
+       
+    Ⅴ、使用Kryo序列化
+    
+        (1)Spark内部默认使用java序列化机制，好处在于处理简单，但是效率不高，并且会占用更多空间、速度慢，Spark默认支持Kryo序列化，性能更好。
+        (2)当Spark需要通过网络进行传输数据，或者将数据溢写到磁盘，Spark会将数据序列化，Kryo序列化机制启用后生效的几个地方：
+           -- 算子函数中使用外部变量
+           -- 持久化RDD时进行序列化
+           -- Stage之间的数据Shuffle
+        (3)使用Kryo序列化机制，需要注册自定义类
+           sparkConf.registerKryoClasses(new Class[]{***.class});
+           
+    Ⅵ、使用 fastUtil 优化数据格式 
+        
+        fastutil是java标准化集合框架(Map,List,Set)的类库扩展以及替代品，可以减小内存占用并提供更快的查询速度，Spark使用FastUtil的场景：
+        (1)如果算子函数中使用了外部变量，第一步可以广播变量，第二步可以使用Kryo序列化机制，第三步如果是较大的数据集合可以使用fastutil进行重写。
+        
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
        
        
