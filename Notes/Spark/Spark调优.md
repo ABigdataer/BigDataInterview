@@ -93,7 +93,65 @@
     Ⅵ、使用 fastUtil 优化数据格式 
         
         fastutil是java标准化集合框架(Map,List,Set)的类库扩展以及替代品，可以减小内存占用并提供更快的查询速度，Spark使用FastUtil的场景：
-        (1)如果算子函数中使用了外部变量，第一步可以广播变量，第二步可以使用Kryo序列化机制，第三步如果是较大的数据集合可以使用fastutil进行重写。
+        (1)如果算子函数中使用了外部变量，第一步可以广播变量，第二步可以使用Kryo序列化机制，第三步如果是较大的数据集合可以使用fastutil进行重写;
+        (2)Task要执行的计算逻辑里，有较大的集合时可以使用fastUtil，在一定程度上可以减小内存占用，避免频繁GC;
+    Ⅶ、调节数据本地化等待时长
+    
+        (1)本地化级别
+        
+           Process_local  Node_local  No_pref  rack_local   Any
+           
+        (2)参数调节
+        
+           spark.locality.wait.process
+           spark.locality.wait   调节数据本地化等待时长   sparkConf.set("spark.locality.wait","10")
+           spark.locality.node
+           spark.locality.wait.rack
+ 
+ ### 4、JVM调优：
+ 
+     Ⅰ、调节Cache操作的内存占比
+     
+        (1)JVM内存不足会导致
+        
+            ①频繁minorGC,导致Spark作业频繁停止工作
+            ②老年代囤积大量短生命周期1对象，导致频繁fullGC,Spark作业长时间停止工作
+            ③严重影响Spark作业的性能和运行速度
+            
+        (2)Spark作业运行过程中，对内存被划分为两块，一块用来给RDD的Cache、Persist操作进行RDD数据缓存，另外一块用来存储Spark
+        作业算子函数创建的对象；
+        
+        (3)默认60%内存给Cache操作，如果在某些情况下Cache对内存的要求不是很大，而task算子函数中创建的对象过多导致频繁GC(可以通
+        过Spark UI查看Yarn界面，查看Spark作业的运行统计，从而找到每个Stage的运行情况，包括每个task的运行时间、gc时间等),可以
+        通过降低Cache内存占比，给task更多的运算空间，从而避免频繁GC;
+        
+        (4)sparkConf.set("spark.storage.memoryFraction","0.4");
+        
+     Ⅱ、调节executor堆外内存与连接等待时长
+     
+        (1)有时候Spark作业处理时会报错如：shuffle file cannot find 、 executor lost 、 task lost 、 OOM ,则有可能是因为executor
+        的堆外内存不太够用，导致内存溢出，也可能导致后续的Stage的task在运行时从别的executor拉取shffle map output文件，但因为executor
+        以及挂掉了，关联的BlockManager也没有了，所以会出现shuffle file cannot find 、 executor lost 、 task lost等报错；
+        
+        (2)可以通过参数调节executor的堆外内存大小来解决上述问题
+        
+            -- conf spark.yarn.executor.memeroryOverhed=2048    针对基于yarn的提交模式
+            
+            在spark的启动指令中添加参数，默认情况下内外内存大小为三百多MB,可调节为1G\2G\4G...,可以避免某些JVM OOM问题，同时让Spark
+            作业有较大性能提升；
+            
+        (3)调节连接等待时长
+        
+           当某个executor的task创建的对象特别大，频繁的让JVM内存溢满进行垃圾回收，作业将停止工作无法提供相应，当下游的executor尝试建立
+           远程网络连接拉取数据，可能会因为超过默认的60s而失败，因此导致Spark作业崩溃，也可能导致DAGSecheduler反复提交几次stage,
+           taskScheduler反复提交task,大大延长了作业时长；
+           
+           可以通过参数调节等待时长，从而避免文件拉取失败： --conf spark.core.connection.ack.wait.timeout = 300 ;
+           
+### 5、Shuffle调优：
+
+        
+           
         
        
        
