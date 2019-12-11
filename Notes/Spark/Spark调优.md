@@ -150,6 +150,55 @@
            
 ### 5、Shuffle调优：
 
+     Ⅰ、Spark的一些算子会触发shuffle，比如GroupByKey、ReduceByKey、CountByKey、Join等；
+         GroupByKey会把分布在集群各节点上的数据中同一个key对应的values集中到同一个节点的一个executor的一个task中进行分析处理 --- <Key,Iterable<Value>>;
+         ReduceByKey对values集合进行reduce操作，最终变为一个value;
+         Join只需要两个RDD的Key相同，就会分发到同一个节点的executor中的task中；
+         ......
+         
+     Ⅱ、合并map端输出文件(针对HashShuffle)(效果明显)
+     
+         (1)Shuffle中的写磁盘操作，基本就是shuffle中性能消耗最大的地方，Shuffle前半部分的task在写入磁盘文件之前，都会先写入一个内存
+         缓冲，再溢写到磁盘文件，而且Shuffle的前半部分Stage的task，每个task都会创建下一个Stage的task数量的文件；
+         
+         (2)可以开启Hash Shuffle的文件合并机制，从而在map端就将文件进行合并，避免产生大量小文件，此机制只适用于HashShuffle,如果不需
+         要SortShuffle的排序机制，除了SortShuffle的Bypass机制，也可以开启HashShuffle并启用文件合并机制；
+            只有并行执行的task会创建下一批task个数的文件，下一批task个数相同的并行的task会复用已有的输出文件，下一批并行的task会复用已有的输出文件，但多批task同时
+         执行，是不能复用输出文件的；
+         
+         (3)sparkConf.set.("spark.shuffle.consolidateFiles","true");
+            合并输出文件对Spark作业有哪些影响？
+            ①map task 减少，磁盘IO减少；
+            ②网络传输性能消耗减少；
+            
+      Ⅲ、调节Map端内存缓冲大小和reduce端内存占比(效果不明显)   
+      
+         (1)spark.shuffle.file.buffer 默认32kb   map端内存缓冲可能会引起频繁Spill和磁盘IO消耗
+            spark.shuffle.memoryFraction  默认0.2  reduce端聚合内存比例过小可能会导致频繁磁盘文件读写；
+            
+         (2)默认shuffle的map task，在将数据输出到磁盘文件之前，会统一先写入每个task关联的内存缓冲区，默认大小为32kb,当缓冲区满了
+         才会进行spill操作，如果文件很大，将会导致多次磁盘写操作，如果reduce端内存不够用，也可能会导致频繁的spill；
+         
+         (3)查看Spark UI,如果每个task的shuffle write和shuffle read很大，则可以考虑进行相应调优；
+            spark.shuffle.file.buffer 每次增加一倍  32kb -> 64kb -> 128kb ...
+            spark.shuffle.memoryFraction 每次增加0.1  0.2 -> 0.3 -> 0.4 ...
+            
+      Ⅳ、HashShuffleManager和SortShuffleManager
+      
+         (1) "spark.shuffle.manager" -->  "hash" | "sort" | "tungsten-sort"
+         
+         (2) HashShuffleManager和SortShuffleManager的不同：
+             ①SortShuffleManager会对reduce task要处理的数据进行排序；
+             ②SortShuffleManager会避免像HashShuffleManager一样创建多份磁盘文件，一个task只会写入一个磁盘文件，不同的reduce task
+             的数据用offset来划定界限；
+             
+         (3) tungsten-sort和sort机制差不多，但由于自己实现了内存管理机制，性能有较大提升，可以避免一些OOM、GC等内存相关的异常；
+         
+         (4)SortShuffle可以通过开启Bypass机制限制排序机制，即当输出文件个数小于某个设定值时不会触发排序机制；
+         
+### 6、算子调优
+
+
         
            
         
