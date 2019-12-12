@@ -198,6 +198,45 @@
          
 ### 6、算子调优
 
+     Ⅰ、使用mapPartitions提升map操作的性能
+     
+            Spark中每个Task处理一个RDD的Partition,如果是普通的map,加入partition内有100w条数据，那么task的map函数的fuction要执行和
+         计算100w次，如果使用mapPatitons，则一个task仅执行一次fuction(一次接收整个partiton的所有数据)，效率比较高；
+            相比较来说，map函数可以通过GC回收掉已经使用过的内存，但是mapPartitions因为一次传入大量数据，容易导致OOM,所以比较适用于数
+         据量不是很大的场景，所以在实际开发中应估测一下Partition的数据量和每个executor的内存资源。
+         
+      Ⅱ、filte，r之后使用coalesce减少分区数量
+       
+              默认情况下经过filter之后，RDD的每个Partition的数据量将会变的不均匀，所以可能会有一些数据量较小的partition单独启动一个task
+          进行处理，造成资源浪费，也可能会导致数据倾斜；
+              coalesce算子主要就是在filter之后针对每个partition进行压缩，减少partiton数量从而让每个partion的数据量更加均匀；
+              repartiton算子其实就是第二个参数为true的coalesce算子的实现；
+       
+      Ⅲ、使用repartition解决SparkSQL低并行度的性能问题
+          
+        并行度可以通过参数自定义：
+           spark.default.parallelism   一般调节为application总CPU个数的2-3倍
+           textFile                    传参时第二个参数可以指定partition数量
+        当SparkSQL读取Hive表对应的HDFS文件的block,可能会因为block数量少而导致并行度较低，而spark.default.parallelism参数只能对除
+        SparkSQL意外的算子生效，如果需要增加并行度，则可以使用repartiton算子进行重分区以提高并行度。
+        
+      Ⅳ、使用foreachPartition优化写数据库性能
+      
+             foreach对于每条数据都会建立和销毁数据库链接，并发送和执行多次SQL，对于性能消耗较大，在实际开发中，可以使用foreachPartion函数
+         来进行数据库写操作，对于一个partion只会建立一次数据库连接，并且只需要向数据库发送一次SQL和多组参数，但因为一次对整个partiton
+         进行操作，所以可能会引起OOM问题，需要估算一下数据量。
+         
+     Ⅴ、使用reduceByKey实现本地聚合
+     
+            reduceByKey相较于普通shuffle,会进行一次map端本地聚合，在map端给每个stage的每个task创建的文件输出数据之前，会进行本地聚合，所以
+         使用reduceByKey算子后map端数据量会减少，从而也会减少磁盘IO和磁盘空间占用，也会降低网络传输消耗，reduc端数据缓存的内存占用也会降低；
+            reduceByKey适用于要实现类似于wordCount程序一样的对每个key对应的value进行数据计算的场景，也适用于一些字符串拼接等较为复杂的使用
+         场景;
+         
+### 7、troubleShooting
+
+
+           
 
         
            
