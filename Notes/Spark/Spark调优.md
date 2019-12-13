@@ -235,9 +235,83 @@
          
 ### 7、troubleShooting
 
-
+     Ⅰ、控制shuffle reduce端缓冲区大小以避免OOM
+     
+        (1) reduce端task会拉取map端的一部分数据放在缓冲区，再在executor分配的内存中进行聚合操作，reduce端的缓冲区默认大小为48MB;
+        
+        (2) 有时map端数据量非常大，从而导致写出数据较多，reduce端的缓冲区被填满，函数拉取缓冲区内数据进行处理，创建的大量对象来不及回收会导致
+        OOM,所以可以适当减小缓冲区大小，从而使内存可以被及时回收；
+        
+        (3) 如果整个Spark application的内存支援比较充足，而且map端的输出数据量不是很大，则可以考虑加大缓冲区大小，以减少reduce task的拉取
+        数据的次数，从而减少网络性能消耗和reduce端聚合操作执行次数；
+        
+        (4) sparkConf.set("spark.reducer.maxIInFlight","48"); 
+        
+     Ⅱ、解决JVM GC导致的shuffle文件拉取失败的问题
+     
+        (1) spark.shuffle.io.maxRetres 默认值为3   shuffle文件拉取不到，最多重试次数
+            spark.shuffle.io.retrywait 默认值5s    每次拉取的等待时长，如果重试次数为3，则3*5秒之后会报错--shuffle file not find
+            
+        (2)可以通过对两个参数进行预调节，从而尽量保证第二个stage的task能一定拉取到上一个stage的输出文件，最多可以接收一个小时，因为full gc
+        不可能一个小时都没结束；   
+     
+     Ⅲ、Yarn队列资源不足导致application直接失败
+     
+        (1)当基于Yarn提交作业，可能会存在两个同样的任务导致内存资源不足，从而可能会导致两种情况：
+           ①Yarn发现资源不足，直接Fail;
+           ②Yarn发现资源不足，后来的作业一直等待第一个作业运行完成后执行；
            
+        (2)解决方案：
+           ①在J2EE系统中限制Spark作业的提交个数；
+           ②分两个调度队列分别运行，避免小作业被大作业阻塞；
+           ③无论如何都只同时运行一个作业并给与最大内存资源；
+           ④在J2EE系统中使用线程池对作业进行调度管理，一个线程池对应一个资源队列，线程池的容量设为1;
+           
+      Ⅳ、解决各种序列化导致的报错
+      
+          (1) 算子函数中，如果使用到了外部的自定义类型的变量，则自定义的变量必须是可序列化的；
+          
+          (2) 如果要将自定义的类型作业RDD的元素类型，那么自定义类型也需要是可序列化的；
+          
+          (3) 不能在上述情况下，使用一些第三方的不支持序列化的类型，如数据库的链接类Connection conn;
+          
+      Ⅴ、解决算子函数返回NULL导致的问题
+      
+            有些算子函数需要有一个返回值，但有时候我们可能不需要返回值，如果直接返回null则可能会报错 -- scala.Math(null) exception,
+         解决办法为：返回一些特殊值，比如 “-999”，然后算子获取RDD后将"-999"数据过滤掉，最后使用coalesce算子压缩partition数目，以提升
+         性能；
+         
+      Ⅵ、解决Yarn-client模式导致的网卡流量激增问题
+      
+           spark在yarn-client模式下，Application的注册和task的调度是分离开的，driver启动在本地，需要频繁的和yarn集群上运行的的多个
+         executor的每个task进行网络通讯，如果task较多，则可能导致本地机器网卡流量激增，yarn-client一般用于测试工作，便于查看log和
+         trouble shooting,生产环境中应采用yarn-cluster模式，该模式driver运行在集群上，所以网卡流量激增问题也不会发生；
+         
+      Ⅶ、解决yarn--cluster模式的JVM内存溢出无法执行问题
+      
+         有时运行作业会出现本地client模式测试成功，但是cluster模式报出JVM 永久代(Permgen)溢出的错误，是因为本地client模式默认内存大小为128MB,但是cluster模式默认为82MB,可以在提交Spark作业时设置永久代内存大小：
+         -- conf spark.driver.extraJavaOptions = "-Xx:PermSize=128M
+                                                  -Xx:MaxPermSize=256MB"
+         如果是栈内存溢出，则可能是因为SparkSQL使用 "or" 过多，需要将SQL语句进行优化拆分；
+         
+      Ⅷ、错误的使用持久化和checkPoint 
+      
+        (1) 正确的使用持久化的方式
+        
+            var usersRDD;
+            ①usersRDD = usersRDD.cache();
+            ②val cacheUsersRDD =  usersRDD.cache();
+            如果直接用usersRDD调用cache算子，而不用对象接收，则会报file not find的错误；
+            
+        (2)checkPoint的使用方式：
+           第一步：设置checkPoint目录  sc.setCheckPointDir("path");
+           第二步：对RDD执行checkPoint算子  rdd.checkPoint();
+           
+        (3)checkPoint是将RDD的数据持久化一份到容错系统(HDFS),如果cache失效，则checkPoint作为数据备份；
+        
+### 8、数据倾斜
 
+        
         
            
         
