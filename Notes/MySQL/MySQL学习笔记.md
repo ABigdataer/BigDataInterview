@@ -1,5 +1,6 @@
+
 ### 一、MySQL逻辑架构
-	MySQL的逻辑架构分为连接层、服务层、存储引擎层和存储层。
+		MySQL的逻辑架构分为连接层、服务层、存储引擎层和存储层。
 
 ![MySQL逻辑架构](https://img-blog.csdnimg.cn/20191218085313209.bmp?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 		
@@ -128,6 +129,103 @@
 	       DROP INDEX [indexName] ON mytable; 
 	Ⅲ、查看：
 			SHOW INDEX FROM table_name\G；
+4、避免索引失效的几个注意点
+
+	Ⅰ、全值匹配；
+	Ⅱ、最佳左前缀法则  如果索引了多列，要遵守最左前缀法则。指的是查询从索引的最左前列开始并且不跳过索引中的列；
+	Ⅲ、不在索引列上做任何操作（计算、函数、(自动or手动)类型转换），会导致索引失效而转向全表扫描；
+	Ⅳ、存储引擎不能使用索引中范围条件右边的列；
+	Ⅴ、尽量使用覆盖索引(只访问索引的查询(索引列和查询列一致))，减少select *；
+	Ⅵ、mysql 在使用不等于(!= 或者<>)的时候无法使用索引会导致全表扫描；
+	Ⅶ、注意null/not null对索引的可能影响 ;
+	Ⅷ、like以通配符开头('%abc...')mysql索引失效会变成全表扫描的操作；
+	Ⅸ、字符串不加单引号索引失效；
+	Ⅹ、少用or,用它来连接时会索引失效； 
 	
+ 【优化口诀】
+ 
+ &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;全职匹配我最爱，最左前缀要遵守；
+ 
+  &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;带头大哥不能死，中间兄弟不能断；
+ 
+  &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;索引列上少计算，范围之后全失效；
+ 
+  &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;LIKE百分写最右，覆盖索引不写*；
+ 
+  &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;不等空值还有OR，索引影响要注意；
+ 
+  &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;VAR引号不可丢， SQL优化有诀窍。
+	
+### 七、执行计划分析
+&emsp;&emsp;使用EXPLAIN关键字可以模拟优化器执行SQL查询语句，从而知道MySQL是如何处理你的SQL语句的。分析你的查询语句或是表结构的性能瓶颈。
 
+&emsp;&emsp;合理查看执行计划可以得知语句执行时表的读取顺序、数据读取操作的操作类型、哪些索引可以使用、哪些索引被实际使用、表之间的引用、每张表有多少行被优化器查询等信息。
 
+&emsp;&emsp;使用方式 ： explain + SQL
+
+&emsp;&emsp;执行计划包含的信息：id | select_type | table | type | possible_keys | key | key_len | ref | rows | extra
+
+	Ⅰ、id    select查询的序列号,包含一组数字，表示查询中执行select子句或操作表的顺序
+	
+	    三种情况 ：①id相同，执行顺序由上至下
+	    		  ②id不同，如果是子查询，id的序号会递增，id值越大优先级越高，越先被执行
+		  		  ③id相同不同，同时存在，id如果相同，可以认为是一组，从上往下顺序执行；在所有组中，id值越大，优先级越高，越先执行
+	
+	Ⅱ、select_type    查询的类型，主要是用于区别普通查询、联合查询、子查询等的复杂查询
+	
+	    ① simple  简单的 select 查询,查询中不包含子查询或者UNION
+	    ② primary  查询中若包含任何复杂的子部分，最外层查询则被标记为primary
+	    ③ subquery  在SELECT或WHERE列表中包含了子查询
+	    ④ derived  在FROM列表中包含的子查询被标记为DERIVED(衍生)，MySQL会递归执行这些子查询, 把结果放在临时表里。
+	    ⑤ union  若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM子句的子查询中,外层SELECT将被标记为：DERIVED
+	    ⑥ uoion result  从UNION表获取结果的SELECT
+
+	Ⅲ、table   显示SQL是关于哪张表的
+	
+	Ⅳ、type  显示查询使用了何种类型，从最好到最差依次是：system>const>eq_ref>ref>range>index>ALL，一般来说，
+			  得保证查询至少达到range级别，最好能达到ref。
+
+		① system   表只有一行记录（等于系统表），这是const类型的特列，平时不会出现，这个也可以忽略不计;
+		② const 表示通过索引一次就找到了,const用于比较primary key或者unique索引。因为只匹配一行数据，所以很快
+		如将主键置于where列表中，MySQL就能将该查询转换为一个常量;
+		③ eq_ref   唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。常见于主键或唯一索引扫描;
+		④ ref   非唯一性索引扫描，返回匹配某个单独值的所有行.本质上也是一种索引访问，它返回所有匹配某个单独值
+		的行，然而，它可能会找到多个符合条件的行，所以他应该属于查找和扫描的混合体;
+		⑤ range   只检索给定范围的行,使用一个索引来选择行。key 列显示使用了哪个索引,一般就是在你的where语句中
+		出现了between、<、>、in等的查询,这种范围扫描索引扫描比全表扫描要好，因为它只需要开始于索引的某一点，而
+		结束语另一点，不用扫描全部索引;
+		⑥ index  遍历索引数据，index与ALL区别为index类型只遍历索引树。这通常比ALL快，因为索引文件通常比数
+		据文件小。(也就是说虽然all和Index都是读全表，但index是从索引中读取的，而all是从硬盘中读的）;
+		⑦ all   全表扫描，将遍历全表以找到匹配的行。
+
+	Ⅴ、possible_keys  显示可能应用在这张表中的索引，一个或多个。查询涉及到的字段上若存在索引，则该索引将被列出，
+					   但不一定被查询实际使用。
+
+	Ⅵ、key  实际使用的索引。如果为NULL，则没有使用索引;查询中若使用了覆盖索引，则该索引和查询的select字段重叠。
+
+	Ⅶ、key_len  表示索引中使用的字节数，可通过该列计算查询中使用的索引的长度。在不损失精确性的情况下，长度越短
+				 越好。
+				 key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是
+				 通过表内检索出的。
+
+	Ⅷ、ref  显示索引的哪一列被使用了，如果可能的话，是一个常数。哪些列或常量被用于查找索引列上的值.
+
+	Ⅸ、rows  根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数.
+
+	Ⅹ、extra   包含不适合在其他列中显示但十分重要的额外信息.
+	
+			   ① Using filesort  说明mysql会对数据使用一个外部的索引排序(会将数据读取到内存，但不能一次全部读
+			   					 取，需要分段读取并最后合并结果)，而不是按照表内的索引顺序进行读取。MySQL中无
+			   					 法利用索引完成的排序操作称为“文件排序”，性能不好，需要进行优化。
+			   					 可能因为order by的顺序没有复用索引的建立顺序，没有保持一致，即索引覆盖。
+			   ② Using temporary  使了用临时表保存中间结果,MySQL在对查询结果排序时使用临时表。常见于排序 
+			   					  order by 和分组查询 group by，性能极不好，需要进行优化。
+			   					  可能因为group by之前未进行order by排序。
+			   ③ USING index  表示相应的select操作中使用了覆盖索引(Covering Index)，避免访问了表的数据行，
+			   				  效率不错！如果同时出现using where，表明索引被用来执行索引键值的查找;如果没有同
+			   				  时出现using where，表明索引用来读取数据而非执行查找动作。
+			   ④ Using where   表明使用了where过滤
+			   ⑤ using join buffer  使用了连接缓存
+			   ⑥ impossible where  where子句的值总是false，不能用来获取任何元组 		  
+		
+			   					  
