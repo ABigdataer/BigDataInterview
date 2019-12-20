@@ -24,6 +24,36 @@
 
 	   存储引擎层，存储引擎真正的负责了MySQL中数据的存储和提取，服务器通过API与存储引擎进行通信。不同的存储引擎具有的功能不同，
 	这样我们可以根据自己的实际需要进行选取。
+
+	    (1) InnoDB存储引擎
+		InnoDB是MySQL的默认事务型引擎，它被设计用来处理大量的短期(short-lived)事务。除非有非常特别的原因需要
+		使用其他的存储引擎，否则应该优先考虑InnoDB引擎。
+ 
+		(2) MyISAM存储引擎
+		MyISAM提供了大量的特性，包括全文索引、压缩、空间函数(GIS)等，但MyISAM不支持事务和行级锁，有一个毫无疑
+		问的缺陷就是崩溃后无法安全恢复。
+ 
+		(3) Archive引擎
+		Archive档案存储引擎只支持INSERT和SELECT操作，在MySQL5.1之前不支持索引。
+		Archive表适合日志和数据采集类应用。
+		根据英文的测试结论来看，Archive表比MyISAM表要小大约75%，比支持事务处理的InnoDB表小大约83%。
+ 
+		(4) Blackhole引擎
+		Blackhole引擎没有实现任何存储机制，它会丢弃所有插入的数据，不做任何保存。但服务器会记录Blackhole表的日
+		志，所以可以用于复制数据到备库，或者简单地记录到日志。但这种应用方式会碰到很多问题，因此并不推荐。 
+ 
+		(5) CSV引擎 
+		CSV引擎可以将普通的CSV文件作为MySQL的表来处理，但不支持索引。
+		CSV引擎可以作为一种数据交换的机制，非常有用。
+		CSV存储的数据直接可以在操作系统里，用文本编辑器，或者excel读取。
+ 
+		(6) Memory引擎
+		如果需要快速地访问数据，并且这些数据不会被修改，重启以后丢失也没有关系，那么使用Memory表是非常有用。
+		Memory表至少比MyISAM表要快一个数量级。
+ 
+		(7) Federated引擎
+		Federated引擎是访问其他MySQL服务器的一个代理，尽管该引擎看起来提供了一种很好的跨服务器的灵活性，但也经
+		常带来问题，因此默认是禁用的。
  
 4.存储层(FileSystem)
 
@@ -228,4 +258,68 @@
 			   ⑤ using join buffer  使用了连接缓存
 			   ⑥ impossible where  where子句的值总是false，不能用来获取任何元组 		  
 		
+### 八、慢查询日志
+
+&emsp;&emsp;**MySQL的慢查询日志是MySQL提供的一种日志记录，它用来记录在MySQL中响应时间超过阈值的语句，具体指运行时间超过long_query_time值的SQL，则会被记录到慢查询日志中。。**
+
+&emsp;&emsp;long_query_time的默认值为10，意思是运行10秒以上的语句。可以通过慢查询日志查看哪些SQL超出了我们的最大忍耐时间值，比如一条sql执行超过5秒钟，我们就算慢SQL，希望能收集超过5秒的sql，结合之前explain进行全面分析。
+
+&emsp;&emsp;默认情况下，MySQL数据库没有开启慢查询日志，需要我们手动来设置这个参数。
+ 
+&emsp;&emsp;当然，如果不是调优需要的话，一般不建议启动该参数，因为开启慢查询日志会或多或少带来一定的性能影响。慢查询日志支持将日志记录写入文件。
+
+&emsp;&emsp;默认情况下slow_query_log的值为OFF，表示慢查询日志是禁用的，可以通过设置slow_query_log的值来开启。
+ 
+		查看慢查询日志是否开启 ： SHOW VARIABLES LIKE '%slow_query_log%' ;
+		
+		使用set global slow_query_log=1;开启了慢查询日志只对当前数据库生效，如果MySQL重启后则会失效。
+
+		如果要永久生效，就必须修改配置文件my.cnf（其它系统变量也是如此）；
+ 
+		修改my.cnf文件，[mysqld]下增加或修改参数；
+		slow_query_log 和slow_query_log_file后，然后重启MySQL服务器。也即将如下两行配置进my.cnf文件；
+ 
+			slow_query_log =1
+			slow_query_log_file=/var/lib/mysql/atguigu-slow.log
+ 
+			关于慢查询的参数slow_query_log_file ，它指定慢查询日志文件的存放路径，系统默认会给一个缺省的文件
+		host_name-slow.log（如果没有指定参数slow_query_log_file的话）；
+
+		查看当前多少秒算慢 ： SHOW VARIABLES LIKE 'long_query_time%' ;
+
+		查询当前系统中有多少条慢查询记录 ： show global status like '%Slow_queries%' ;
+
+&emsp;&emsp;在生产环境中，如果要手工分析日志，查找、分析SQL，显然是个体力活，MySQL提供了日志分析工具mysqldumpslow。下面是几个常用指令参考：
+
+		得到返回记录集最多的10个SQL
+		mysqldumpslow -s r -t 10 /var/lib/mysql/atguigu-slow.log
+ 
+		得到访问次数最多的10个SQL
+		mysqldumpslow -s c -t 10 /var/lib/mysql/atguigu-slow.log
+ 
+		得到按照时间排序的前10条里面含有左连接的查询语句
+		mysqldumpslow -s t -t 10 -g "left join" /var/lib/mysql/atguigu-slow.log
+ 
+		另外建议在使用这些命令时结合 | 和more 使用 ，否则有可能出现爆屏情况
+		mysqldumpslow -s r -t 10 /var/lib/mysql/atguigu-slow.log | more
+
+### 九、主从复制
+#### 1、复制的基本原理
+**MySQL复制过程分成三步：**
+&emsp;1 master将改变记录到二进制日志（binary log）。这些记录过程叫做二进制日志事件，binary log events；
+&emsp;2 slave将master的binary log events拷贝到它的中继日志（relay log）；
+&emsp;3 slave重做中继日志中的事件，将改变应用到自己的数据库中。 MySQL复制是异步的且串行化的。
+![MySQL数据复制过程图解](https://img-blog.csdnimg.cn/20191220094150259.bmp?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+#### 2、复制的基本原则
+&emsp;&emsp;1、每个slave只有一个master
+&emsp;&emsp;2、每个slave只能有一个唯一的服务器ID
+&emsp;&emsp;3、每个master可以有多个salve
+
+
+
+
+ 
+ 
+ 
+
 			   					  
