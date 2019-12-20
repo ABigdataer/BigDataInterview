@@ -305,14 +305,23 @@
 
 ### 九、主从复制
 #### 1、复制的基本原理
+
 **MySQL复制过程分成三步：**
+
 &emsp;1 master将改变记录到二进制日志（binary log）。这些记录过程叫做二进制日志事件，binary log events；
+
 &emsp;2 slave将master的binary log events拷贝到它的中继日志（relay log）；
+
 &emsp;3 slave重做中继日志中的事件，将改变应用到自己的数据库中。 MySQL复制是异步的且串行化的。
+
 ![MySQL数据复制过程图解](https://img-blog.csdnimg.cn/20191220094150259.bmp?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
 #### 2、复制的基本原则
+
 &emsp;&emsp;1、每个slave只有一个master
+
 &emsp;&emsp;2、每个slave只能有一个唯一的服务器ID
+
 &emsp;&emsp;3、每个master可以有多个salve
 
 
