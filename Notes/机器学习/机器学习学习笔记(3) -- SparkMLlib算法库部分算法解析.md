@@ -1,5 +1,14 @@
+**目录**
 
-## 1、线性回归(有监督值预测算法模型)
+* [1、线性回归(有监督值预测算法模型)](#1)
+*  [2、贝叶斯(有监督的基于概率的分类算法模型)](#2)
+*  [3、KNN最邻近算法(有监督的分类算法)](#3)
+*  [4、K-Means算法(无监督聚类算法)](#4)
+*  [5、逻辑回归算法(线性回归分析有监督分类模型)](#5)
+*  [6、决策树和随机森林(非线性有监督分类模型)](#6)
+
+
+<h2 id="1">1、线性回归(有监督值预测算法模型)</h2>
 
 &emsp;&emsp;由点与点之间的关系反推出函数表达式的过程就是回归，回归在机器学习中解决的问题就是值预测问题；确定一条最好的直线来拟合所有的点，假设直线是y=W0+W1X，确定直线就是确定W0和W1的值；
 
@@ -70,7 +79,8 @@
 		过拟合即模型在训练集中表现优异，但是在测试集中表现极差，当训练集非常少，特征非常多时容易出现过拟合；
 		欠拟合即训练集和测试集表现都不好。
 
-## 2、贝叶斯(有监督的基于概率的分类算法模型)
+<h2  id="2" />2、贝叶斯(有监督的基于概率的分类算法模型)</h2>
+
 &emsp;&emsp;机器学习算法中，有种依据概率原则进行分类的朴素贝叶斯算法，正如气象学家预测天气一样，朴素贝叶斯算法就是应用先前事件的有关数据来估计未来某个事件发生的概率；
 
 &emsp;&emsp;下面是基于贝叶斯定理的条件概率公式：
@@ -106,7 +116,8 @@
  
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2019123011301337.png#pic_center)
 
-## 3、KNN最邻近算法(有监督的分类算法)
+<h2 id="3"/>3、KNN最邻近算法(有监督的分类算法)</h2>
+
  &emsp;&emsp;该算法的思路是：如果一个样本空间中的K个最相似的样本中大多数属于某个类别，则该样本也属于这个类别。KNN算法由邻居推断类别，就是距离衡量样本之间的相似度。
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230144540664.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70#pic_center)
@@ -124,7 +135,8 @@
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230154522647.png#pic_center)
 
-## 4、K-Means算法(无监督聚类算法)
+<h2 id="4" /> 4、K-Means算法(无监督聚类算法)</h2>
+
 &emsp;&emsp;**聚类的定义和思想：**
 
 &emsp;&emsp;聚类是一种无监督学习，就是对大量未知标注的数据集按数据的内在相似性将数据集划分为多个类别，使类别内的数据相似度较大而类别间的相似度较小，一个类别也叫一个簇，类别内的相似性越大，类别之间的差别越大则聚类效果越好。
@@ -171,7 +183,7 @@
 
 &emsp;&emsp;K-means算法可能存在随机选取的中心点位置非常近，导致迭代次数增加，K-Means++算法就是在K-Means算法的基础上使随机选取的中心点不会聚集的算法。
 
-## 5、逻辑回归算法(线性回归分析有监督分类模型)
+<h2 id="5" />5、逻辑回归算法(线性回归分析有监督分类模型)</h2>
 
 &emsp;&emsp;线性回归是一种用于分类的算法，线性回归要求因变量必须是连续性的数据变量，逻辑回归要求因变量必须是分类变量，可以是二分类或者多分类(多分类可以归结为二分类问题)，逻辑回归的输出是0~1之间的概率。
 
@@ -250,13 +262,46 @@
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2019123017005140.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 
-## 6、决策树和随机森林(非线性有监督分类模型)
+<h2 id="6" />6、决策树和随机森林(非线性有监督分类模型)</h2>
 
+&emsp;&emsp;线性分类模型可能会存在线性不可分问题，但是非先行分类算法模型就不存在该问题；
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230171758547.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230171842891.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230171947478.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172010735.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)			
 
-					
+线性分裂纯粹度：
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/2019123017222176.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172305178.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172348340.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172448292.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172614518.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172657709.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172726630.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172836810.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172929860.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230172951907.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230173027628.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230173057509.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230173120683.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230173223287.png)
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230173300358.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70)
