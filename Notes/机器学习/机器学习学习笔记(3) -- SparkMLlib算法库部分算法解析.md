@@ -70,5 +70,40 @@
 		欠拟合即训练集和测试集表现都不好。
 
 ## 2、贝叶斯(有监督的基于概率的分类算法模型)
+&emsp;&emsp;机器学习算法中，有种依据概率原则进行分类的朴素贝叶斯算法，正如气象学家预测天气一样，朴素贝叶斯算法就是应用先前事件的有关数据来估计未来某个事件发生的概率；
+
+&emsp;&emsp;下面是基于贝叶斯定理的条件概率公式：
+
+![基于贝叶斯定理的条件概率公式](https://img-blog.csdnimg.cn/20191230111433579.png#pic_center)
+
+
+							P(A) 称为先验概率(已知) 			P(B)称为标准化常量(已知)
+							P(B|A)称为似然度(已知)   	  	P(A|B)称为后验概率(未知)
+
+ &emsp;&emsp;如何理解朴素贝叶斯算法？下面将从如何通过该算法进行垃圾分类进行分析：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230113300911.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70#pic_center)
+
+		P(spam) 所有邮件中是垃圾邮件的概率 		  	 P(Viagra|Spam) 是垃圾邮件且含有Viagra的概率
+		P(Viagra) 所有邮件内含有Viagra的概率     P(spam|Viagra) 含有Viagra且是垃圾邮件的概率
+
+ &emsp;&emsp;计算贝叶斯定理中每一个组成部分的概率，我们必须构造一个频率表：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230114732587.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70#pic_center)
+
+ &emsp;&emsp;由表可以计算 P(spam|Viagra)  =  P(Viagra|Spam)*P(spam) / P(Viagra) = （4/20）* (20/100) / (5/100) = 0.8,所以可以得知电子邮件中含有单词Viagra，那么该邮件是垃圾邮件的概率为80%,所以含有Viagra的消息都需要被过滤掉。
+
+ &emsp;&emsp;当有更多额外特征时：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230115503814.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNjQwMjI4,size_16,color_FFFFFF,t_70#pic_center)
+
+ &emsp;&emsp;可以得到概率如下：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191230115551473.png#pic_center)
+
+ &emsp;&emsp;拉普拉斯估计：
+ 
+![在这里插入图片描述](https://img-blog.csdnimg.cn/2019123011301337.png#pic_center)
+
 
 
